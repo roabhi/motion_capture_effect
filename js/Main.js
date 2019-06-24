@@ -2,7 +2,8 @@
 GLOBAL VARS
 =================================================== */
 
-const canvas = document.getElementById('canvas'),
+const controls = document.getElementById('controls'),
+      canvas = document.getElementById('canvas'),
       ctx = canvas.getContext('2d');
 
 let   can_w = parseInt(canvas.getAttribute('width')),
@@ -38,6 +39,10 @@ let   can_w = parseInt(canvas.getAttribute('width')),
       r: 0,
       type: 'mouse'
     },
+    myAnim, //Create a var to hold a reference for the animation frame
+    isAnim, //Create a var to hold a reference to keep track of the animation status
+    isShape, //Create a var to hold a reference to keep the track if we are requesting a shape
+    hasDir, //Create a var to hold a ference to keep track of the direction where moving
     globalResizeTimeout, //Create a var to hold a reference for the global resizer event
     globalResEvent; //Create a var to hold a reference for the global resizer event
 
@@ -59,8 +64,8 @@ function globalResizeThrottler() {
 } //Function that limits the amount of times the resize event is actually fir to prevent poor performance
 
 function getRandomSpeed(pos){
-    var  min = -0.5, //-1
-       max = 0.5; //1
+    let min = -1, //-1
+        max = 1; //1
     switch(pos){
         case 'top':
             return [randomNumFrom(min, max), randomNumFrom(0.1, max)];
@@ -88,7 +93,7 @@ function randomNumFrom(min, max){
 }
 
 function getRandomBall(){
-    var pos = randomArrayItem(['top', 'right', 'bottom', 'left']);
+    let pos = randomArrayItem(['top', 'right', 'bottom', 'left']);
     switch(pos){
         case 'top':
             return {
@@ -155,7 +160,9 @@ function renderBalls(){
 
 // Update balls
 function updateBalls(){
-    var new_balls = [];
+  let new_balls = [];
+
+  if(!isShape){
     Array.prototype.forEach.call(balls, function(b){
         b.x += b.vx;
         b.y += b.vy;
@@ -171,6 +178,27 @@ function updateBalls(){
     });
 
     balls = new_balls.slice(0);
+
+  }else {
+
+    Array.prototype.forEach.call(balls, function(_b, _i) {
+
+    //  _b.y -= 0.5 + _i;
+
+      hasDir == "up" ? _b.y -= 0.5 + _i : _b.y += 0.5 + _i;
+
+      
+
+    });
+
+    //balls = new_balls.slice(0);
+
+
+  }
+
+
+
+
 }
 
 // loop alpha
@@ -180,9 +208,9 @@ function loopAlphaInf(){
 
 // Draw lines
 function renderLines(){
-    var fraction, alpha;
-    for (var i = 0; i < balls.length; i++) {
-        for (var j = i + 1; j < balls.length; j++) {
+    let fraction, alpha;
+    for (let i = 0; i < balls.length; i++) {
+        for (let j = i + 1; j < balls.length; j++) {
 
            fraction = getDisOf(balls[i], balls[j]) / dis_limit;
 
@@ -204,8 +232,8 @@ function renderLines(){
 
 // calculate distance between two points
 function getDisOf(b1, b2){
-    var  delta_x = Math.abs(b1.x - b2.x),
-       delta_y = Math.abs(b1.y - b2.y);
+    let delta_x = Math.abs(b1.x - b2.x),
+        delta_y = Math.abs(b1.y - b2.y);
 
     return Math.sqrt(delta_x*delta_x + delta_y*delta_y);
 }
@@ -229,12 +257,14 @@ function render(){
 
     addBallIfy();
 
-    window.requestAnimationFrame(render);
+    isAnim ? window.requestAnimationFrame(render) : window.cancelAnimationFrame(myAnim);
+
+
 }
 
 // Init Balls
 function initBalls(num){
-    for(var i = 1; i <= num; i++){
+    for(let i = 1; i <= num; i++){
         balls.push({
             x: randomSidePos(can_w),
             y: randomSidePos(can_h),
@@ -259,7 +289,9 @@ function initCanvas(){
 function goMovie(){
     initCanvas();
     initBalls(10); //original is 30 --> starting number of balls
-    window.requestAnimationFrame(render);
+    isAnim = true;
+    myAnim = window.requestAnimationFrame(render);
+
 }
 
 
@@ -284,29 +316,70 @@ init = e => {
   INIT THE GLOBAL RESIZE EVENT
   =================================================== */
 
+  //Controls
 
-  // Mouse effect
-  canvas.addEventListener('mouseenter', function(){
-      console.log('mouseenter');
-      mouse_in = true;
-      balls.push(mouse_ball);
-  });
-  canvas.addEventListener('mouseleave', function(){
-      console.log('mouseleave');
-      mouse_in = false;
-      var new_balls = [];
-      Array.prototype.forEach.call(balls, function(b){
-          if(!b.hasOwnProperty('type')){
-              new_balls.push(b);
+
+  controls.addEventListener('click', (e) => {
+
+    switch (e.target.className) {
+      case "play":
+
+          if(isAnim) {
+            isAnim = false; //Cancellation of anim takes place in render itself
+          }else {
+            isAnim = true;
+            myAnim = window.requestAnimationFrame(render);
           }
-      });
-      balls = new_balls.slice(0);
+
+
+
+        break;
+      case "up":
+
+        !isShape == true ? isShape = true : isShape = false;
+        hasDir = "up";
+
+      break;
+      case "down":
+
+        !isShape == true ? isShape = true : isShape = false;
+        hasDir = "down";
+
+      break;
+      default:
+      null;
+
+    }
+
   });
-  canvas.addEventListener('mousemove', function(e){
-      var e = e || window.event;
-      mouse_ball.x = e.pageX;
-      mouse_ball.y = e.pageY;
-      // console.log(mouse_ball);
+
+  canvas.addEventListener('mouseenter', (e) => {
+    console.log('mouseenter');
+    mouse_in = true;
+    balls.push(mouse_ball);
+  });
+
+
+
+
+  canvas.addEventListener('mouseleave', (e) => {
+    console.log('mouseleave');
+    mouse_in = false;
+    let new_balls = [];
+    Array.prototype.forEach.call(balls, function(b){
+        if(!b.hasOwnProperty('type')){
+            new_balls.push(b);
+        }
+    });
+    balls = new_balls.slice(0);
+  });
+
+
+  canvas.addEventListener('mousemove', (e) => {
+    let ev = e || window.event;
+    mouse_ball.x = ev.pageX;
+    mouse_ball.y = ev.pageY;
+    // console.log(mouse_ball);
   });
 
   window.addEventListener('resize', globalResizeThrottler, false); //listen for a resize event on the global scope
