@@ -39,8 +39,10 @@ let   can_w = parseInt(canvas.getAttribute('width')),
       r: 0,
       type: 'mouse'
     },
+    current_balls, //Creaste a var to hold a reference for the present balls when those are paused
     balls_number = 10, //Var to hold a reference for the amount of inital balls
     myActiveBall, //Create a var to hold a reference for the most nearest ball when mouse down
+    isBallActive, //Create a var to hold a boolean to keep track of the state of active balls
     myAnim, //Create a var to hold a reference for the animation frame
     isAnim, //Create a var to hold a reference to keep track of the animation status
     isShape, //Create a var to hold a reference to keep the track if we are requesting a shape
@@ -171,32 +173,45 @@ function renderBalls(){
     });
 }
 
+function defineBalls() {
+  Array.prototype.forEach.call(balls, function(b){
+     if(!b.hasOwnProperty('type')){
+         ctx.fillStyle = 'rgba('+ball_color.r+','+ball_color.g+','+ball_color.b+',1)';
+         ctx.beginPath();
+         ctx.arc(b.x, b.y, R, 0, Math.PI*2, true);
+         ctx.closePath();
+         ctx.fill();
+     }
+  });
+}
+
 // Update balls
 function updateBalls(){
   let new_balls = [];
 
-  if(isAnim) {
-    Array.prototype.forEach.call(balls, function(b){
-        b.x += b.vx;
-        b.y += b.vy;
+  Array.prototype.forEach.call(balls, function(b){
+      b.x += b.vx;
+      b.y += b.vy;
 
-        if(b.x > -(5) && b.x < (can_w+5) && b.y > -(5) && b.y < (can_h+5)){ //50
-           new_balls.push(b);
-        }
+      if(b.x > -(5) && b.x < (can_w+5) && b.y > -(5) && b.y < (can_h+5)){ //50
+         new_balls.push(b);
+      }
 
-        // alpha change
-        b.phase += alpha_f;
-        b.alpha = Math.abs(Math.cos(b.phase));
-        // console.log(b.alpha);
-    });
+      // alpha change
+      b.phase += alpha_f;
+      b.alpha = Math.abs(Math.cos(b.phase));
+      // console.log(b.alpha);
+  });
 
-    balls = new_balls.slice(0);
-  }
+  balls = new_balls.slice(0);
 
+}
 
+function defineBallsPos(){
 
-
-
+  // if(isBallActive) {
+  //   myActiveBall.x =
+  // }
 
 }
 
@@ -238,7 +253,7 @@ function defineLines() {
          if(fraction < 1){
              alpha = (1 - fraction).toString();
 
-             ctx.strokeStyle = 'rgba(150,150,150,1)';
+             ctx.strokeStyle = 'rgba(150,150,150,.5)';
              ctx.lineWidth = link_line_width;
 
              ctx.beginPath();
@@ -298,13 +313,10 @@ function render(){
 
       //window.cancelAnimationFrame(myAnim);
 
-      R = 5;
-
-      //getRandomBall();
+      R = 4;
       defineLines();
-      renderBalls();
-
-      updateBalls();
+      defineBalls();
+      defineBallsPos();
 
 
     }
@@ -342,6 +354,7 @@ function goMovie(){
     initCanvas();
     initBalls(balls_number); //original is 30 --> starting number of balls
     isAnim = true;
+    isBallActive = false;
     myAnim = window.requestAnimationFrame(render);
 
 }
@@ -411,34 +424,36 @@ init = e => {
   });
 
   canvas.addEventListener('mousedown', (e) => {
-    console.log('mousedown');
 
-    if (typeof console != 'undefined') {
-        console.log(e.clientX, e.clientY, balls);
-    }
+    current_balls = balls.filter( b => !b.hasOwnProperty('type'));
 
 
+    current_balls.forEach((el,i) => {
 
-    balls.forEach((el,i) => {
+          let mouse_x = e.clientX,
+          mouse_y = e.clientY;
 
-      if (typeof console != 'undefined') {
-          console.log('ball ' + i + ' has ' + Math.round(el.x) + ' x position and mouse x position is ' + Math.round(e.clientX) );
-          console.log('ball ' + i + ' has ' + Math.round(el.y) + ' y position and mouse y position is ' + Math.round(e.clientY) );
+      //Detect if click is inside any of the current balls
+
+      if(Math.pow(mouse_x-el.x,2) + Math.pow(mouse_y-el.y,2) < Math.pow(5,2) ) {
+
+        if (typeof console != 'undefined') {
+            console.log(' ball is active ');
+        }
+
+        myActiveBall = el;
+        isBallActive = true;
+      }else {
+
+        if (typeof console != 'undefined') {
+            console.log(' ball is NOT active ');
+        }
+
       }
-
-      // if( Math.round(el.x) == Math.round(e.clientX) )  {
-      //
-      //     if( Math.round(el.y) == Math.round(e.clientY) ){
-      //       myActiveBall = i;
-      //     }
-      //
-      //
-      // }
-
-
 
 
     });
+
 
 
 
@@ -449,7 +464,9 @@ init = e => {
 
   canvas.addEventListener('mouseup', (e) => {
     console.log('mouseup');
-    myActiveBall = [];
+    myActiveBall = null;
+    isBallActive = false;
+
   });
 
 
@@ -472,7 +489,19 @@ init = e => {
     let ev = e || window.event;
     mouse_ball.x = ev.pageX;
     mouse_ball.y = ev.pageY;
-    // console.log(mouse_ball);
+
+    if (typeof console != 'undefined') {
+        console.log(isBallActive);
+    }
+
+    if(isBallActive) {
+      if (typeof console != 'undefined') {
+          console.log(myActiveBall);
+      }
+      myActiveBall.x = mouse_ball.x;
+      myActiveBall.y = mouse_ball.y;
+    }
+
   });
 
   window.addEventListener('resize', globalResizeThrottler, false); //listen for a resize event on the global scope
