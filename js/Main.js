@@ -39,6 +39,8 @@ let   can_w = parseInt(canvas.getAttribute('width')),
       r: 0,
       type: 'mouse'
     },
+    balls_number = 10, //Var to hold a reference for the amount of inital balls
+    myActiveBall, //Create a var to hold a reference for the most nearest ball when mouse down
     myAnim, //Create a var to hold a reference for the animation frame
     isAnim, //Create a var to hold a reference to keep track of the animation status
     isShape, //Create a var to hold a reference to keep the track if we are requesting a shape
@@ -66,6 +68,17 @@ function globalResizeThrottler() {
 function getRandomSpeed(pos){
     let min = -1, //-1
         max = 1; //1
+
+    // let min,max;
+    //
+    // if(hasDir) {
+    //   min = -5;
+    //   max = 5;
+    // }else {
+    //   min = -1;
+    //   max = 1;
+    // }
+
     switch(pos){
         case 'top':
             return [randomNumFrom(min, max), randomNumFrom(0.1, max)];
@@ -162,7 +175,7 @@ function renderBalls(){
 function updateBalls(){
   let new_balls = [];
 
-  if(!isShape){
+  if(isAnim) {
     Array.prototype.forEach.call(balls, function(b){
         b.x += b.vx;
         b.y += b.vy;
@@ -178,23 +191,9 @@ function updateBalls(){
     });
 
     balls = new_balls.slice(0);
-
-  }else {
-
-    Array.prototype.forEach.call(balls, function(_b, _i) {
-
-    //  _b.y -= 0.5 + _i;
-
-      hasDir == "up" ? _b.y -= 0.5 + _i : _b.y += 0.5 + _i;
-
-      
-
-    });
-
-    //balls = new_balls.slice(0);
-
-
   }
+
+
 
 
 
@@ -216,7 +215,6 @@ function renderLines(){
 
            if(fraction < 1){
                alpha = (1 - fraction).toString();
-
                ctx.strokeStyle = 'rgba(150,150,150,'+alpha+')';
                ctx.lineWidth = link_line_width;
 
@@ -230,6 +228,29 @@ function renderLines(){
     }
 }
 
+function defineLines() {
+  let fraction, alpha;
+  for (let i = 0; i < balls.length; i++) {
+      for (let j = i + 1; j < balls.length; j++) {
+
+         fraction = getDisOf(balls[i], balls[j]) / dis_limit;
+
+         if(fraction < 1){
+             alpha = (1 - fraction).toString();
+
+             ctx.strokeStyle = 'rgba(150,150,150,1)';
+             ctx.lineWidth = link_line_width;
+
+             ctx.beginPath();
+             ctx.moveTo(balls[i].x, balls[i].y);
+             ctx.lineTo(balls[j].x, balls[j].y);
+             ctx.stroke();
+             ctx.closePath();
+         }
+      }
+  }
+}
+
 // calculate distance between two points
 function getDisOf(b1, b2){
     let delta_x = Math.abs(b1.x - b2.x),
@@ -240,24 +261,55 @@ function getDisOf(b1, b2){
 
 // add balls if there a little balls
 function addBallIfy(){
-    if(balls.length < 10){ //Default is 20 --> Keeps constant flow of balls if below value
+    if(balls.length < balls_number){ //Default is 20 --> Keeps constant flow of balls if below value
         balls.push(getRandomBall());
     }
 }
 
+function removeBallIfy() {
+  if(balls.length >= balls_number){ //Default is 20 --> Keeps constant flow of balls if below value
+      balls.pop();
+      if (typeof console != 'undefined') {
+          console.log(' balls is ', balls);
+      }
+  }
+
+}
+
 // Render
 function render(){
+
     ctx.clearRect(0, 0, can_w, can_h);
 
-    renderBalls();
 
-    renderLines();
 
-    updateBalls();
+    if(isAnim) {
+      R = 3;
 
-    addBallIfy();
+      renderBalls();
 
-    isAnim ? window.requestAnimationFrame(render) : window.cancelAnimationFrame(myAnim);
+      renderLines();
+
+      updateBalls();
+
+      addBallIfy();
+
+    }else {
+
+      //window.cancelAnimationFrame(myAnim);
+
+      R = 5;
+
+      //getRandomBall();
+      defineLines();
+      renderBalls();
+
+      updateBalls();
+
+
+    }
+
+    window.requestAnimationFrame(render);
 
 
 }
@@ -288,7 +340,7 @@ function initCanvas(){
 
 function goMovie(){
     initCanvas();
-    initBalls(10); //original is 30 --> starting number of balls
+    initBalls(balls_number); //original is 30 --> starting number of balls
     isAnim = true;
     myAnim = window.requestAnimationFrame(render);
 
@@ -326,25 +378,24 @@ init = e => {
 
           if(isAnim) {
             isAnim = false; //Cancellation of anim takes place in render itself
+
+
+
           }else {
             isAnim = true;
-            myAnim = window.requestAnimationFrame(render);
+            //myAnim = window.requestAnimationFrame(render);
           }
 
 
 
         break;
-      case "up":
-
-        !isShape == true ? isShape = true : isShape = false;
-        hasDir = "up";
-
+      case "add":
+        balls_number++;
+        addBallIfy();
       break;
-      case "down":
-
-        !isShape == true ? isShape = true : isShape = false;
-        hasDir = "down";
-
+      case "remove":
+        balls_number--;
+        removeBallIfy();
       break;
       default:
       null;
@@ -357,6 +408,48 @@ init = e => {
     console.log('mouseenter');
     mouse_in = true;
     balls.push(mouse_ball);
+  });
+
+  canvas.addEventListener('mousedown', (e) => {
+    console.log('mousedown');
+
+    if (typeof console != 'undefined') {
+        console.log(e.clientX, e.clientY, balls);
+    }
+
+
+
+    balls.forEach((el,i) => {
+
+      if (typeof console != 'undefined') {
+          console.log('ball ' + i + ' has ' + Math.round(el.x) + ' x position and mouse x position is ' + Math.round(e.clientX) );
+          console.log('ball ' + i + ' has ' + Math.round(el.y) + ' y position and mouse y position is ' + Math.round(e.clientY) );
+      }
+
+      // if( Math.round(el.x) == Math.round(e.clientX) )  {
+      //
+      //     if( Math.round(el.y) == Math.round(e.clientY) ){
+      //       myActiveBall = i;
+      //     }
+      //
+      //
+      // }
+
+
+
+
+    });
+
+
+
+
+
+
+  });
+
+  canvas.addEventListener('mouseup', (e) => {
+    console.log('mouseup');
+    myActiveBall = [];
   });
 
 
