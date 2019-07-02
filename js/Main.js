@@ -71,16 +71,6 @@ function getRandomSpeed(pos){
     let min = -1, //-1
         max = 1; //1
 
-    // let min,max;
-    //
-    // if(hasDir) {
-    //   min = -5;
-    //   max = 5;
-    // }else {
-    //   min = -1;
-    //   max = 1;
-    // }
-
     switch(pos){
         case 'top':
             return [randomNumFrom(min, max), randomNumFrom(0.1, max)];
@@ -108,52 +98,67 @@ function randomNumFrom(min, max){
 }
 
 function getRandomBall(){
-    let pos = randomArrayItem(['top', 'right', 'bottom', 'left']);
-    switch(pos){
-        case 'top':
-            return {
-                x: randomSidePos(can_w),
-                y: -R,
-                vx: getRandomSpeed('top')[0],
-                vy: getRandomSpeed('top')[1],
-                r: R,
-                alpha: 1,
-                phase: randomNumFrom(0, 10)
-            }
-            break;
-        case 'right':
-            return {
-                x: can_w + R,
-                y: randomSidePos(can_h),
-                vx: getRandomSpeed('right')[0],
-                vy: getRandomSpeed('right')[1],
-                r: R,
-                alpha: 1,
-                phase: randomNumFrom(0, 10)
-            }
-            break;
-        case 'bottom':
-            return {
-                x: randomSidePos(can_w),
-                y: can_h + R,
-                vx: getRandomSpeed('bottom')[0],
-                vy: getRandomSpeed('bottom')[1],
-                r: R,
-                alpha: 1,
-                phase: randomNumFrom(0, 10)
-            }
-            break;
-        case 'left':
-            return {
-                x: -R,
-                y: randomSidePos(can_h),
-                vx: getRandomSpeed('left')[0],
-                vy: getRandomSpeed('left')[1],
-                r: R,
-                alpha: 1,
-                phase: randomNumFrom(0, 10)
-            }
-            break;
+
+    if(isAnim) { //If animation is on get balls at random position and speed either inseide or outside boundaries
+
+      let pos = randomArrayItem(['top', 'right', 'bottom', 'left']);
+      switch(pos){
+          case 'top':
+              return {
+                  x: randomSidePos(can_w),
+                  y: -R,
+                  vx: getRandomSpeed('top')[0],
+                  vy: getRandomSpeed('top')[1],
+                  r: R,
+                  alpha: 1,
+                  phase: randomNumFrom(0, 10)
+              }
+              break;
+          case 'right':
+              return {
+                  x: can_w + R,
+                  y: randomSidePos(can_h),
+                  vx: getRandomSpeed('right')[0],
+                  vy: getRandomSpeed('right')[1],
+                  r: R,
+                  alpha: 1,
+                  phase: randomNumFrom(0, 10)
+              }
+              break;
+          case 'bottom':
+              return {
+                  x: randomSidePos(can_w),
+                  y: can_h + R,
+                  vx: getRandomSpeed('bottom')[0],
+                  vy: getRandomSpeed('bottom')[1],
+                  r: R,
+                  alpha: 1,
+                  phase: randomNumFrom(0, 10)
+              }
+              break;
+          case 'left':
+              return {
+                  x: -R,
+                  y: randomSidePos(can_h),
+                  vx: getRandomSpeed('left')[0],
+                  vy: getRandomSpeed('left')[1],
+                  r: R,
+                  alpha: 1,
+                  phase: randomNumFrom(0, 10)
+              }
+              break;
+      }
+
+    }else { //Otherwise...get a new ball wihtin the boundaries of canvas wihtin a safe zone of -100 px so it is visible to the user
+      return {
+          x: randomNumFrom(0,can_w - 100),
+          y: randomNumFrom(0,can_h - 100),
+          vx: getRandomSpeed('top')[0],
+          vy: getRandomSpeed('top')[1],
+          r: R,
+          alpha: 1,
+          phase: randomNumFrom(0, 10)
+      }
     }
 }
 function randomSidePos(length){
@@ -244,21 +249,24 @@ function renderLines(){
 }
 
 function defineLines() {
-  let fraction, alpha;
-  for (let i = 0; i < balls.length; i++) {
-      for (let j = i + 1; j < balls.length; j++) {
+  let fraction, alpha, current_balls;
 
-         fraction = getDisOf(balls[i], balls[j]) / dis_limit;
+  current_balls = balls.filter(b => !b.hasOwnProperty('type'));
+
+  for (let i = 0; i < current_balls.length; i++) {
+      for (let j = i + 1; j < current_balls.length; j++) {
+
+         fraction = getDisOf(balls[i], balls[j]) / dis_limit ;
 
          if(fraction < 1){
              alpha = (1 - fraction).toString();
 
-             ctx.strokeStyle = 'rgba(150,150,150,.5)';
+             ctx.strokeStyle = 'rgba(150,150,150,.25)';
              ctx.lineWidth = link_line_width;
 
              ctx.beginPath();
-             ctx.moveTo(balls[i].x, balls[i].y);
-             ctx.lineTo(balls[j].x, balls[j].y);
+             ctx.moveTo(current_balls[i].x, current_balls[i].y);
+             ctx.lineTo(current_balls[j].x, current_balls[j].y);
              ctx.stroke();
              ctx.closePath();
          }
@@ -299,7 +307,7 @@ function render(){
 
 
     if(isAnim) {
-      R = 3;
+      R = 3; //Whwn anim is on ball size is 3
 
       renderBalls();
 
@@ -311,9 +319,8 @@ function render(){
 
     }else {
 
-      //window.cancelAnimationFrame(myAnim);
 
-      R = 4;
+      R = 4; //When anim is off ball size increases to 4
       defineLines();
       defineBalls();
       defineBallsPos();
@@ -442,6 +449,7 @@ init = e => {
         }
 
         myActiveBall = el;
+
         isBallActive = true;
       }else {
 
@@ -490,14 +498,23 @@ init = e => {
     mouse_ball.x = ev.pageX;
     mouse_ball.y = ev.pageY;
 
-    if (typeof console != 'undefined') {
-        console.log(isBallActive);
-    }
 
-    if(isBallActive) {
-      if (typeof console != 'undefined') {
-          console.log(myActiveBall);
-      }
+    canvas.style.cursor = 'default'; // cursor is default by default
+
+    current_balls = balls.filter( b => !b.hasOwnProperty('type')); //Filter only balls and not he mouse
+
+
+    current_balls.forEach((el,i) => {
+
+      if(Math.pow(mouse_ball.x - el.x,2) + Math.pow(mouse_ball.y - el.y,2) <= Math.pow(5,2) ) {
+        canvas.style.cursor = 'pointer';
+      } //If cursor is hovering any ball
+
+    }); //Loop through current balls, excliding the mouse as ball itself
+
+
+    if(isBallActive) { //In addtion if there is any ball active...move the ball where the cursor goes until mouse up
+
       myActiveBall.x = mouse_ball.x;
       myActiveBall.y = mouse_ball.y;
     }
