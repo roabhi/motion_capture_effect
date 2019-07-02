@@ -1,3 +1,10 @@
+/*=================================================
+FONT: LOADING;
+=================================================== */
+
+@import url('https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Monoton&display=swap');
+
 
 /*
 *	================================================================
@@ -24,28 +31,61 @@ html, body {
 }
 
 
+/* COMMON: STYLES
+=================================================== */
+
+
+
+
+
+/* CONTROLS STYLES
+=================================================== */
+
+.controls:before {
+  content:'';
+  display:inline-block;
+  vertical-align: middle;
+  height:100%;
+}
+
 .controls {
   position:fixed;
   z-index:10;
-  right:1rem;
-  top:3rem;
+  right:0;
+  top:0;
   color:#fff;
   font-size:0.625rem;
   text-transform:uppercase;
+  height:100%;
+  text-align: center;
+  width:10rem;
+  border-left: 0.063rem #333 solid;
+  pointer-events: none;
 
 }
+
+
+
 
 .controls ul {
   padding:0;
   margin:0;
   list-style:none;
+  font-family:'Press Start 2P', cursive;
+  font-size:0.5rem;
+  text-transform:uppercase;
+  text-align:left;
+  display:inline-block;
+  vertical-align: middle;
+
 }
 
 .controls ul li {
-  display:inline-block;
-  vertical-align: middle;
   cursor:pointer;
-  margin:0 0.25rem;
+  margin:0.25rem;
+  pointer-events: auto;
+
+
 }
 
 .holder {
