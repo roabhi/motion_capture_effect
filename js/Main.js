@@ -2,12 +2,19 @@
 GLOBAL VARS
 =================================================== */
 
-const controls = document.getElementById('controls'),
+const holder = document.getElementById('holder'),
+      controls = document.getElementById('controls'),
       canvas = document.getElementById('canvas'),
       ctx = canvas.getContext('2d');
 
 let   can_w = parseInt(canvas.getAttribute('width')),
       can_h = parseInt(canvas.getAttribute('height')),
+      line_color =  {
+        r: 150, //207
+        g: 150, //255
+        b: 150 //4
+      },
+      lines_opacity = 1,
       ball = {
       x: 0,
       y: 0,
@@ -66,6 +73,225 @@ function globalResizeThrottler() {
        }, 66);
     }
 } //Function that limits the amount of times the resize event is actually fir to prevent poor performance
+
+
+
+function hexToRgb(hex) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
+}
+
+/*=================================================
+UX FUNCTIONS
+=================================================== */
+
+function addInteractions() {
+  //Controls
+
+
+  controls.addEventListener('click', (e) => {
+
+    switch (e.target.className) {
+      case "play":
+
+          if(isAnim) {
+            isAnim = false; //Cancellation of anim takes place in render itself
+
+
+
+          }else {
+            isAnim = true;
+            //myAnim = window.requestAnimationFrame(render);
+          }
+
+
+
+        break;
+      case "add":
+        balls_number++;
+        addBallIfy();
+      break;
+      case "remove":
+        if(balls_number >= 1) {
+          balls_number--;
+          removeBallIfy();
+        }
+
+      break;
+      default:
+      null;
+
+    }
+
+  });
+
+  canvas.addEventListener('mouseenter', (e) => {
+    console.log('mouseenter');
+    mouse_in = true;
+    balls.push(mouse_ball);
+  });
+
+  canvas.addEventListener('mousedown', (e) => {
+
+    current_balls = balls.filter( b => !b.hasOwnProperty('type'));
+
+
+    current_balls.forEach((el,i) => {
+
+          let mouse_x = e.clientX,
+          mouse_y = e.clientY;
+
+      //Detect if click is inside any of the current balls
+
+      if(Math.pow(mouse_x-el.x,2) + Math.pow(mouse_y-el.y,2) < Math.pow(5,2) ) {
+
+        if (typeof console != 'undefined') {
+            console.log(' ball is active ');
+        }
+
+        myActiveBall = el;
+
+        isBallActive = true;
+      }else {
+
+        if (typeof console != 'undefined') {
+            console.log(' ball is NOT active ');
+        }
+
+      }
+
+
+    });
+
+
+
+
+
+
+
+  });
+
+  canvas.addEventListener('mouseup', (e) => {
+    console.log('mouseup');
+    myActiveBall = null;
+    isBallActive = false;
+
+  });
+
+
+
+
+  canvas.addEventListener('mouseleave', (e) => {
+    console.log('mouseleave');
+    mouse_in = false;
+    let new_balls = [];
+    Array.prototype.forEach.call(balls, function(b){
+        if(!b.hasOwnProperty('type')){
+            new_balls.push(b);
+        }
+    });
+    balls = new_balls.slice(0);
+  });
+
+
+  canvas.addEventListener('mousemove', (e) => {
+    let ev = e || window.event;
+    mouse_ball.x = ev.pageX;
+    mouse_ball.y = ev.pageY;
+
+
+    canvas.style.cursor = 'default'; // cursor is default by default
+
+    current_balls = balls.filter( b => !b.hasOwnProperty('type')); //Filter only balls and not he mouse
+
+
+    current_balls.forEach((el,i) => {
+
+      if(Math.pow(mouse_ball.x - el.x,2) + Math.pow(mouse_ball.y - el.y,2) <= Math.pow(5,2) ) {
+        canvas.style.cursor = 'pointer';
+      } //If cursor is hovering any ball
+
+    }); //Loop through current balls, excliding the mouse as ball itself
+
+
+    if(isBallActive) { //In addtion if there is any ball active...move the ball where the cursor goes until mouse up
+
+      myActiveBall.x = mouse_ball.x;
+      myActiveBall.y = mouse_ball.y;
+    }
+
+  });
+
+
+  /* LISTEN 4 UX EVENTS
+  =================================================== */
+
+  Array.from(document.querySelectorAll('div#settings div.centered input')).map(_obj => {
+
+    _obj.addEventListener('change', e => {
+
+      switch (e.target.id) {
+        case 'canvas-bg-color':
+          holder.style.background = e.target.value + ' none';
+        break;
+        case 'balls-bg-color':
+
+          let _result_b = hexToRgb(e.target.value);
+
+          ball_color = {
+             r: _result_b.r,
+             g: _result_b.g,
+             b: _result_b.b
+          }
+
+        break;
+        case 'lines-bg-color':
+
+          let _result_l = hexToRgb(e.target.value);
+
+          line_color = {
+            r: _result_l.r,
+            g: _result_l.g,
+            b: _result_l.b
+          }
+
+        break;
+        case 'lines-alpha-range':
+
+          lines_opacity = e.target.value / 10;
+
+        break;
+        case 'lines-prox-range':
+
+          dis_limit = e.target.value;
+
+        break;
+        default:
+
+      }
+
+    });
+
+  });
+
+  // canvasBgColorPicker.addEventListener('change', e => {
+  //
+  //   if (typeof console != 'undefined') {
+  //       console.log(e.target.value);
+  //   }
+  //
+  //   holder.style.background = e.target.value + ' none';
+  //
+  //
+  // });
+
+
+
+}
 
 function getRandomSpeed(pos){
     let min = -1, //-1
@@ -234,8 +460,12 @@ function renderLines(){
            fraction = getDisOf(balls[i], balls[j]) / dis_limit;
 
            if(fraction < 1){
-               alpha = (1 - fraction).toString();
-               ctx.strokeStyle = 'rgba(150,150,150,'+alpha+')';
+              // alpha = (1 - fraction).toString();
+               alpha = (1 - fraction / lines_opacity).toString();
+
+               //ctx.strokeStyle = 'rgba('+line_color.r+','+line_color.g+','+line_color.b+','+alpha+')';
+               ctx.strokeStyle = 'rgba('+line_color.r+','+line_color.g+','+line_color.b+','+alpha+')';
+
                ctx.lineWidth = link_line_width;
 
                ctx.beginPath();
@@ -261,7 +491,8 @@ function defineLines() {
          if(fraction < 1){
              alpha = (1 - fraction).toString();
 
-             ctx.strokeStyle = 'rgba(150,150,150,.25)';
+             //ctx.strokeStyle = 'rgba(150,150,150,.25)';
+             ctx.strokeStyle = 'rgba('+line_color.r+','+line_color.g+','+line_color.b+','+lines_opacity+')';
              ctx.lineWidth = link_line_width;
 
              ctx.beginPath();
@@ -388,142 +619,13 @@ init = e => {
   INIT THE GLOBAL RESIZE EVENT
   =================================================== */
 
-  //Controls
 
-
-  controls.addEventListener('click', (e) => {
-
-    switch (e.target.className) {
-      case "play":
-
-          if(isAnim) {
-            isAnim = false; //Cancellation of anim takes place in render itself
-
-
-
-          }else {
-            isAnim = true;
-            //myAnim = window.requestAnimationFrame(render);
-          }
-
-
-
-        break;
-      case "add":
-        balls_number++;
-        addBallIfy();
-      break;
-      case "remove":
-        balls_number--;
-        removeBallIfy();
-      break;
-      default:
-      null;
-
-    }
-
-  });
-
-  canvas.addEventListener('mouseenter', (e) => {
-    console.log('mouseenter');
-    mouse_in = true;
-    balls.push(mouse_ball);
-  });
-
-  canvas.addEventListener('mousedown', (e) => {
-
-    current_balls = balls.filter( b => !b.hasOwnProperty('type'));
-
-
-    current_balls.forEach((el,i) => {
-
-          let mouse_x = e.clientX,
-          mouse_y = e.clientY;
-
-      //Detect if click is inside any of the current balls
-
-      if(Math.pow(mouse_x-el.x,2) + Math.pow(mouse_y-el.y,2) < Math.pow(5,2) ) {
-
-        if (typeof console != 'undefined') {
-            console.log(' ball is active ');
-        }
-
-        myActiveBall = el;
-
-        isBallActive = true;
-      }else {
-
-        if (typeof console != 'undefined') {
-            console.log(' ball is NOT active ');
-        }
-
-      }
-
-
-    });
-
-
-
-
-
-
-
-  });
-
-  canvas.addEventListener('mouseup', (e) => {
-    console.log('mouseup');
-    myActiveBall = null;
-    isBallActive = false;
-
-  });
-
-
-
-
-  canvas.addEventListener('mouseleave', (e) => {
-    console.log('mouseleave');
-    mouse_in = false;
-    let new_balls = [];
-    Array.prototype.forEach.call(balls, function(b){
-        if(!b.hasOwnProperty('type')){
-            new_balls.push(b);
-        }
-    });
-    balls = new_balls.slice(0);
-  });
-
-
-  canvas.addEventListener('mousemove', (e) => {
-    let ev = e || window.event;
-    mouse_ball.x = ev.pageX;
-    mouse_ball.y = ev.pageY;
-
-
-    canvas.style.cursor = 'default'; // cursor is default by default
-
-    current_balls = balls.filter( b => !b.hasOwnProperty('type')); //Filter only balls and not he mouse
-
-
-    current_balls.forEach((el,i) => {
-
-      if(Math.pow(mouse_ball.x - el.x,2) + Math.pow(mouse_ball.y - el.y,2) <= Math.pow(5,2) ) {
-        canvas.style.cursor = 'pointer';
-      } //If cursor is hovering any ball
-
-    }); //Loop through current balls, excliding the mouse as ball itself
-
-
-    if(isBallActive) { //In addtion if there is any ball active...move the ball where the cursor goes until mouse up
-
-      myActiveBall.x = mouse_ball.x;
-      myActiveBall.y = mouse_ball.y;
-    }
-
-  });
 
   window.addEventListener('resize', globalResizeThrottler, false); //listen for a resize event on the global scope
   globalResEvent = new CustomEvent('resize', { 'detail' : 'resize' }); //Create the resize event
   window.dispatchEvent(globalResEvent); //Trigger the resize event
+
+  addInteractions();
 
   goMovie();
 
