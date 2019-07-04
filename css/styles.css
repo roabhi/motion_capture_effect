@@ -41,49 +41,73 @@ html, body {
 /* CONTROLS STYLES
 =================================================== */
 
-.controls:before {
+/* .controls:before {
   content:'';
   display:inline-block;
   vertical-align: middle;
   height:100%;
-}
+} */
 
 .controls {
   position:fixed;
   z-index:10;
+  left:0;
   right:0;
   top:0;
+  height:3rem;
   color:#fff;
   font-size:0.625rem;
   text-transform:uppercase;
-  height:100%;
   text-align: center;
-  width:10rem;
-  border-left: 0.063rem rgba(255,255,255,.25) solid;
-  pointer-events: none;
-
+  width:20%;
+  margin:0 auto;
 }
+
+
 
 
 
 
 .controls ul {
+  position:relative;
   padding:0;
   margin:0;
   list-style:none;
   font-family:'Press Start 2P', cursive;
   font-size:0.45rem;
   text-transform:uppercase;
-  text-align:left;
+  text-align:center;
+  height:3rem;
+
   display:inline-block;
   vertical-align: middle;
 
+  transform:translateY(-100%);
+
+  transition:transform 0.25s ease-in-out;
+
+  border-bottom: 0.063rem rgba(255,255,255,.25) solid;
+
+}
+
+
+.controls ul:after {
+  content:'controls';
+  width:100%;
+  position:absolute;
+  bottom:-2rem;
+  display:block;
+  pointer-events: none;
+  font-size:0.5rem;
 }
 
 .controls ul li {
   cursor:pointer;
   margin:0.25rem;
+  padding:1rem 0;
   pointer-events: auto;
+  display:inline-block;
+  vertical-align: middle;
 
 
 }
@@ -92,44 +116,80 @@ html, body {
   position:fixed;
   z-index:10;
   left:0;
-  top:0;
+  right:0;
+  margin:0 auto;
+  bottom:0;
   color:#fff;
 
   text-transform:uppercase;
-  height:100%;
+  height:3rem;
   text-align: center;
-  width:10rem;
-  border-right: 0.063rem rgba(255,255,255,.25) solid;
-  pointer-events: none;
+  width:55%;
+
+
 }
 
-.settings:before {
+/* .settings:before {
   content:'';
   display:inline-block;
   vertical-align: middle;
   height:100%;
 
-}
+} */
 
 .settings .centered {
-  width:95%;
-  text-align:left;
+  position:relative;
+  text-align:center;
   display:inline-block;
   vertical-align: middle;
   font-family:'Press Start 2P', cursive;
 
+  transform:translateY(100%);
+
+  transition:transform 0.25s ease-in-out;
+
+  border-top: 0.063rem rgba(255,255,255,.25) solid;
+
+}
+
+.settings .centered:before {
+  content:'settings';
+  width:100%;
+  position:absolute;
+  top:-2rem;
+  display:block;
+  pointer-events: none;
+  font-size:0.5rem;
 }
 
 .settings .centered h6 {
-  margin:0 0 0.25rem 0;
+  margin:1rem 0;
   font-size:0.45rem;
   padding:0;
+  width:auto;
+  display:inline-block;
+  vertical-align: middle;
 }
 
 .settings .centered input {
-  width:90%;
-  margin:0.25rem auto 1rem auto;
+  display:inline-block;
+  vertical-align: middle;
+  width:5rem;
+  margin:1rem 0;
+
 }
+
+/* .settings .centered input[type="color"] {
+
+  padding:0;
+  margin:0;
+
+}
+
+.settings .centered input[type="range"] {
+  width:5rem;
+
+} */
 
 .settings .centered * {
   pointer-events: auto;
@@ -219,6 +279,26 @@ html, body {
 }
 
 
+
+/*=================================================
+CASCADING TRANSITIONS
+=================================================== */
+
+.controls:hover ul {
+  transform:translateY(0);
+}
+
+.controls:hover ul:after {
+  content:'';
+}
+
+.settings:hover .centered {
+  transform:translateY(0);
+}
+
+.settings:hover .centered:before {
+  content:'';
+}
 
 /* .holder .container .panel:first-of-type  {
   background:cyan none;

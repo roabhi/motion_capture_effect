@@ -9,6 +9,7 @@ const holder = document.getElementById('holder'),
 
 let   can_w = parseInt(canvas.getAttribute('width')),
       can_h = parseInt(canvas.getAttribute('height')),
+      can_bg_color = '#000000',
       line_color =  {
         r: 150, //207
         g: 150, //255
@@ -85,12 +86,43 @@ function hexToRgb(hex) {
   } : null;
 }
 
+function componentToHex(c) {
+  var hex = c.toString(16);
+  return hex.length == 1 ? "0" + hex : hex;
+}
+
+function rgbToHex(r, g, b) {
+  return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
+
 /*=================================================
 UX FUNCTIONS
 =================================================== */
 
 function addInteractions() {
-  //Controls
+
+
+  /* INIT DEFAULT VALUES
+  =================================================== */
+
+
+  //Set canvas bg color / color picker and actual canvas
+  document.getElementById('canvas-bg-color').setAttribute('value', can_bg_color);
+  holder.style.background = can_bg_color + ' none';
+
+  //Set points Color / color picker based on ball_color values from JS
+  document.getElementById('balls-bg-color').setAttribute('value', rgbToHex(ball_color.r,ball_color.g,ball_color.b));
+
+  //Set lines color / color picker based on line_color values from JS
+  document.getElementById('lines-bg-color').setAttribute('value', rgbToHex(line_color.r, line_color.g, line_color.b));
+
+  //Set lines alpha based on lines_opacity value form JS * 10 (needs to be a multiple of ten)
+  document.getElementById('lines-alpha-range').setAttribute('value', lines_opacity * 10);
+
+  //Set lines proximity range based on dis_limit from JS
+  document.getElementById('lines-prox-range').setAttribute('value', dis_limit);
+
+
 
 
   controls.addEventListener('click', (e) => {
@@ -460,8 +492,8 @@ function renderLines(){
            fraction = getDisOf(balls[i], balls[j]) / dis_limit;
 
            if(fraction < 1){
-              // alpha = (1 - fraction).toString();
-               alpha = (1 - fraction / lines_opacity).toString();
+              alpha = (1 - fraction).toString();
+               //alpha = (1 - fraction / lines_opacity).toString();
 
                //ctx.strokeStyle = 'rgba('+line_color.r+','+line_color.g+','+line_color.b+','+alpha+')';
                ctx.strokeStyle = 'rgba('+line_color.r+','+line_color.g+','+line_color.b+','+alpha+')';
@@ -624,6 +656,8 @@ init = e => {
   window.addEventListener('resize', globalResizeThrottler, false); //listen for a resize event on the global scope
   globalResEvent = new CustomEvent('resize', { 'detail' : 'resize' }); //Create the resize event
   window.dispatchEvent(globalResEvent); //Trigger the resize event
+
+
 
   addInteractions();
 
