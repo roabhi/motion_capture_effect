@@ -108,7 +108,8 @@ function addInteractions() {
 
   //Set canvas bg color / color picker and actual canvas
   document.getElementById('canvas-bg-color').setAttribute('value', can_bg_color);
-  holder.style.background = can_bg_color + ' none';
+  //canvas.style.background = can_bg_color + ' none';
+
 
   //Set points Color / color picker based on ball_color values from JS
   document.getElementById('balls-bg-color').setAttribute('value', rgbToHex(ball_color.r,ball_color.g,ball_color.b));
@@ -152,6 +153,24 @@ function addInteractions() {
           balls_number--;
           removeBallIfy();
         }
+
+      break;
+      case "download" :
+
+      let link = document.createElement('a'),
+          img = document.createElement('img');
+
+      link.href = canvas.toDataURL("image/png");
+      link.download = img;
+
+
+      link.style.display = 'none';
+      document.body.appendChild(link);
+
+      link.click();
+
+      //document.body.removeChild(link);
+
 
       break;
       default:
@@ -268,7 +287,11 @@ function addInteractions() {
 
       switch (e.target.id) {
         case 'canvas-bg-color':
-          holder.style.background = e.target.value + ' none';
+          //canvas.style.background = e.target.value + ' none';
+
+          can_bg_color = e.target.value;
+
+
         break;
         case 'balls-bg-color':
 
@@ -562,10 +585,18 @@ function removeBallIfy() {
 
 }
 
+function renderCanvasBG(){
+  ctx.fillStyle = can_bg_color;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.globalCompositeOperation = 'destination-over'
+}
+
 // Render
 function render(){
 
     ctx.clearRect(0, 0, can_w, can_h);
+
+
 
 
 
@@ -590,6 +621,9 @@ function render(){
 
 
     }
+
+    renderCanvasBG();
+
 
     window.requestAnimationFrame(render);
 

@@ -203,9 +203,9 @@ html, body {
   top:0;
   left:0;
 
-  background:#525257 none;
+  /* background:#525257 none;
 
-  transition:background 0.5s linear;
+  transition:background 0.5s linear; */
 }
 
 .holder canvas {
@@ -216,7 +216,9 @@ html, body {
     top:0;
     left:0;
 
-    background:transparent none;
+    /* background:transparent none;
+
+    transition:background 0.5s linear; */
 
 }
 
