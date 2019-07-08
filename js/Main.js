@@ -123,6 +123,26 @@ function addInteractions() {
   //Set lines proximity range based on dis_limit from JS
   document.getElementById('lines-prox-range').setAttribute('value', dis_limit);
 
+  //Display default Number of balls_number
+
+  document.querySelector('#controls ul').dataset.balls = 'number of balls : ' + balls_number;
+
+  //Display default Bg Color
+  document.querySelector("h6.canvas-bg-color").dataset.value = can_bg_color;
+
+  //Display default Balls Color
+  document.querySelector("h6.balls-bg-color").dataset.value = rgbToHex(ball_color.r,ball_color.g,ball_color.b);
+
+  //Display default Lines Color
+  document.querySelector("h6.lines-bg-color").dataset.value = rgbToHex(line_color.r, line_color.g, line_color.b);
+
+  //Display default lines alpha
+  document.querySelector("h6.lines-alpha-range").dataset.value = lines_opacity;
+
+  //Display default lines range
+  document.querySelector("h6.lines-prox-range").dataset.value = dis_limit;
+
+
 
 
 
@@ -146,11 +166,17 @@ function addInteractions() {
         break;
       case "add":
         balls_number++;
+
+        document.querySelector('#controls ul').dataset.balls = 'number of balls : ' + balls_number;
+
         addBallIfy();
       break;
       case "remove":
         if(balls_number >= 1) {
           balls_number--;
+
+          document.querySelector('#controls ul').dataset.balls = 'number of balls : ' + balls_number;
+
           removeBallIfy();
         }
 
@@ -241,7 +267,8 @@ function addInteractions() {
     mouse_in = false;
     let new_balls = [];
     Array.prototype.forEach.call(balls, function(b){
-        if(!b.hasOwnProperty('type')){
+        if(!b.hasOwnProperty('type')){//Display default lines range
+
             new_balls.push(b);
         }
     });
@@ -253,6 +280,7 @@ function addInteractions() {
     let ev = e || window.event;
     mouse_ball.x = ev.pageX;
     mouse_ball.y = ev.pageY;
+
 
 
     canvas.style.cursor = 'default'; // cursor is default by default
@@ -275,6 +303,8 @@ function addInteractions() {
       myActiveBall.y = mouse_ball.y;
     }
 
+
+
   });
 
 
@@ -289,7 +319,12 @@ function addInteractions() {
         case 'canvas-bg-color':
           //canvas.style.background = e.target.value + ' none';
 
+
+
           can_bg_color = e.target.value;
+
+          //Display Canvas Color
+          document.querySelector('h6.canvas-bg-color').dataset.value = can_bg_color;
 
 
         break;
@@ -303,6 +338,9 @@ function addInteractions() {
              b: _result_b.b
           }
 
+          //Display Balls Color
+          document.querySelector("h6.balls-bg-color").dataset.value = rgbToHex(ball_color.r,ball_color.g,ball_color.b);
+
         break;
         case 'lines-bg-color':
 
@@ -314,18 +352,28 @@ function addInteractions() {
             b: _result_l.b
           }
 
+          //Display Lines Color
+          document.querySelector("h6.lines-bg-color").dataset.value = rgbToHex(line_color.r, line_color.g, line_color.b);
+
         break;
         case 'lines-alpha-range':
 
           lines_opacity = e.target.value / 10;
+
+          //Display lines alpha
+          document.querySelector("h6.lines-alpha-range").dataset.value = lines_opacity;
 
         break;
         case 'lines-prox-range':
 
           dis_limit = e.target.value;
 
+          //Display lines range
+          document.querySelector("h6.lines-prox-range").dataset.value = dis_limit;
+
         break;
         default:
+        null;
 
       }
 
