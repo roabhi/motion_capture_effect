@@ -1,3 +1,10 @@
+/*=================================================
+FONT: LOADING;
+=================================================== */
+
+@import url('https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Monoton&display=swap');
+
 
 /*
 *	================================================================
@@ -23,18 +30,335 @@ html, body {
   overflow: hidden;
 }
 
+
+/* COMMON: STYLES
+=================================================== */
+
+
+
+
+
+/* CONTROLS STYLES
+=================================================== */
+
+/* .controls:before {
+  content:'';
+  display:inline-block;
+  vertical-align: middle;
+  height:100%;
+} */
+
+.controls {
+  position:fixed;
+  z-index:10;
+  left:0;
+  right:0;
+  top:0;
+  height:3rem;
+  color:#fff;
+  font-size:0.625rem;
+  text-transform:uppercase;
+  text-align: center;
+  width:20%;
+  margin:0 auto;
+}
+
+
+
+
+
+
+.controls ul {
+  position:relative;
+  padding:0;
+  margin:0;
+  list-style:none;
+  font-family:'Press Start 2P', cursive;
+  font-size:0.45rem;
+  text-transform:uppercase;
+  text-align:center;
+  height:3rem;
+
+  display:inline-block;
+  vertical-align: middle;
+
+  transform:translateY(-100%);
+
+  transition:transform 0.25s ease-in-out;
+
+  border-bottom: 0.063rem rgba(255,255,255,.25) solid;
+
+}
+
+.controls ul:before {
+  content:attr(data-balls);
+  position:absolute;
+  width:100%;
+  bottom:-2rem;
+  display:none;
+  pointer-events: none;
+  font-size:0.5rem;
+  text-shadow: #000 0 0.063rem 0.0125rem;
+
+}
+
+.controls ul:after {
+  content:'controls';
+  width:100%;
+  position:absolute;
+  bottom:-2rem;
+  display:block;
+  pointer-events: none;
+  font-size:0.5rem;
+
+  text-shadow: #000 0 0.063rem 0.0125rem;
+}
+
+.controls ul li {
+  cursor:pointer;
+  margin:0.25rem;
+  padding:1rem 0;
+  pointer-events: auto;
+  display:inline-block;
+  vertical-align: middle;
+
+  text-shadow: #000 0 0.063rem 0.0125rem;
+
+
+}
+
+.settings {
+  position:fixed;
+  z-index:10;
+  left:0;
+  right:0;
+  margin:0 auto;
+  bottom:0;
+  color:#fff;
+
+  text-transform:uppercase;
+  height:3rem;
+  text-align: center;
+  width:55%;
+
+
+}
+
+/* .settings:before {
+  content:'';
+  display:inline-block;
+  vertical-align: middle;
+  height:100%;
+
+} */
+
+.settings .centered {
+  position:relative;
+  text-align:center;
+  display:inline-block;
+  vertical-align: middle;
+  font-family:'Press Start 2P', cursive;
+
+  transform:translateY(100%);
+
+  transition:transform 0.25s ease-in-out;
+
+  border-top: 0.063rem rgba(255,255,255,.25) solid;
+
+}
+
+.settings .centered:before {
+  content:'settings';
+  width:100%;
+  position:absolute;
+  top:-2rem;
+  display:block;
+  pointer-events: none;
+  font-size:0.5rem;
+  text-shadow: #000 0 0.063rem 0.0125rem;
+}
+
+.settings .centered h6 {
+  margin:1rem 0;
+  font-size:0.45rem;
+  padding:0;
+  width:auto;
+  display:inline-block;
+  vertical-align: middle;
+  position:relative;
+
+}
+
+.settings .centered h6:before {
+  position:absolute;
+  width:auto;
+  top:-3.313rem;
+  display:none;
+  content:attr(data-value);
+
+
+
+}
+
+
+
+.settings .centered input {
+  display:inline-block;
+  vertical-align: middle;
+  width:5rem;
+  margin:1rem 0;
+  position:relative;
+
+}
+
+
+
+
+
+/* .settings .centered input[type="color"] {
+
+  padding:0;
+  margin:0;
+
+}
+
+.settings .centered input[type="range"] {
+  width:5rem;
+
+} */
+
+.settings .centered * {
+  pointer-events: auto;
+  text-shadow: #000 0 0.063rem 0.0125rem;
+
+}
+
 .holder {
   width:100%;
   height:100%;
   position:absolute;
   top:0;
   left:0;
+
+  /* background:#525257 none;
+
+  transition:background 0.5s linear; */
 }
 
 .holder canvas {
     /* width:100%;
     height:100%; */
 
-    background:#111 none;
+    position:absolute;
+    top:0;
+    left:0;
+
+    /* background:transparent none;
+
+    transition:background 0.5s linear; */
 
 }
+
+.holder .container  {
+  position:absolute;
+  width:100%;
+  height:100%;
+  top:0;
+  left:0;
+  pointer-events: none;
+  /* overflow-y:auto; */
+}
+
+.holder .container .panels-container  {
+  transition:transform 0.5s cubic-bezier(0.190, 1.000, 0.220, 1.000);
+  transform:translateY(0);
+  width:100%;
+  height:100%;
+}
+
+.holder .container .panels-container .panel  {
+  width:100%;
+  height:100%;
+  text-align:center;
+
+}
+
+.holder .container .panels-container .panel:before {
+  content:'';
+  display:inline-block;
+  vertical-align: middle;
+  height:100%;
+}
+
+.holder .container .panels-container .panel .centered {
+  display:inline-block;
+  vertical-align: middle;
+  width:95%;
+
+
+}
+
+.holder .container .panels-container .panel h3, .holder .container .panels-container .panel p {
+  padding:0;
+  margin:0;
+  color:#f5f5f5;
+  text-align:left;
+  max-width:25rem;
+  width:100%;
+  pointer-events: auto;
+}
+
+.holder .container .panels-container .panel h3 {
+  font-size:2rem;
+}
+
+.holder .container .panels-container .panel p {
+  margin:2rem 0 0 0;
+  font-size:1rem;
+}
+
+
+
+/*=================================================
+CASCADING TRANSITIONS
+=================================================== */
+
+.controls:hover ul {
+  transform:translateY(0);
+}
+
+.controls:hover ul:after {
+  content:'';
+}
+
+.controls:hover ul:before {
+  display:block;
+}
+
+.settings:hover .centered {
+  transform:translateY(0);
+}
+
+.settings:hover .centered:before {
+  content:'';
+}
+
+.settings:hover .centered h6:before {
+  display:block;
+}
+
+body.anim .settings .centered h6.lines-alpha-range, body.anim .settings .centered input:last-of-type {
+  display:none !important;
+}
+
+/* .holder .container .panel:first-of-type  {
+  background:cyan none;
+}
+
+.holder .container .panel:nth-child(2)  {
+  background:orange none;
+}
+
+.holder .container .panel:last-of-type  {
+  background:green none;
+} */
