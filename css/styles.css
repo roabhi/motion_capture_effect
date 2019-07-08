@@ -347,6 +347,10 @@ CASCADING TRANSITIONS
   display:block;
 }
 
+body.anim .settings .centered h6.lines-alpha-range, body.anim .settings .centered input:last-of-type {
+  display:none !important;
+}
+
 /* .holder .container .panel:first-of-type  {
   background:cyan none;
 }

@@ -153,11 +153,12 @@ function addInteractions() {
 
           if(isAnim) {
             isAnim = false; //Cancellation of anim takes place in render itself
-
+            document.body.classList.contains('anim') ? document.body.classList.remove('anim') : null;
 
 
           }else {
             isAnim = true;
+            !document.body.classList.contains('anim') ? document.body.classList.add('anim') : null;
             //myAnim = window.requestAnimationFrame(render);
           }
 
@@ -706,6 +707,7 @@ function goMovie(){
     initCanvas();
     initBalls(balls_number); //original is 30 --> starting number of balls
     isAnim = true;
+    document.body.classList.add('anim');
     isBallActive = false;
     myAnim = window.requestAnimationFrame(render);
 
